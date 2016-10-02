@@ -1,6 +1,55 @@
 {
 	"comment": "",
 	"ignore": "test",
-	"package": [],
+	"package": [
+		{
+			"checksumSHA1": "d6798KSc0jDg2MHNxKdgyNfMK7A=",
+			"path": "github.com/armon/go-metrics",
+			"revision": "3df31a1ada83e310c2e24b267c8e8b68836547b4",
+			"revisionTime": "2016-07-17T04:34:58Z"
+		},
+		{
+			"checksumSHA1": "cdOCt0Yb+hdErz8NAQqayxPmRsY=",
+			"path": "github.com/hashicorp/errwrap",
+			"revision": "7554cd9344cec97297fa6649b055a8c98c2a1e55",
+			"revisionTime": "2014-10-28T05:47:10Z"
+		},
+		{
+			"checksumSHA1": "TNlVzNR1OaajcNi3CbQ3bGbaLGU=",
+			"path": "github.com/hashicorp/go-msgpack/codec",
+			"revision": "fa3f63826f7c23912c15263591e65d54d080b458",
+			"revisionTime": "2015-05-18T23:42:57Z"
+		},
+		{
+			"checksumSHA1": "KS9lmJV8Z7KHdtSIhbafQLU1hC4=",
+			"path": "github.com/hashicorp/go-multierror",
+			"revision": "8c5f0ad9360406a3807ce7de6bc73269a91a6e51",
+			"revisionTime": "2016-08-11T01:57:21Z"
+		},
+		{
+			"checksumSHA1": "Ozk/S4U1x/OllNP2SsMYJjCl/gs=",
+			"path": "github.com/hashicorp/memberlist",
+			"revision": "7ad712f5f34ec40aebe6ca47756d07898486a8d2",
+			"revisionTime": "2016-09-15T13:02:55Z"
+		},
+		{
+			"checksumSHA1": "E3Xcanc9ouQwL+CZGOUyA/+giLg=",
+			"path": "github.com/hashicorp/serf/coordinate",
+			"revision": "b03bf85930b2349eb04b97c8fac437495296e3e7",
+			"revisionTime": "2016-10-02T15:24:16Z"
+		},
+		{
+			"checksumSHA1": "vLyudzMEdik8IpRY1H2vRa2PeLU=",
+			"path": "github.com/hashicorp/serf/serf",
+			"revision": "b03bf85930b2349eb04b97c8fac437495296e3e7",
+			"revisionTime": "2016-10-02T15:24:16Z"
+		},
+		{
+			"checksumSHA1": "OUZ1FFXyKs+Cfg9M9rmXqqweQck=",
+			"path": "github.com/miekg/dns",
+			"revision": "db96a2b759cdef4f11a34506a42eb8d1290c598e",
+			"revisionTime": "2016-07-26T03:20:27Z"
+		}
+	],
 	"rootPath": "github.com/defgrid/openvpn-peer"
 }
