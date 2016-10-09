@@ -3,6 +3,18 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "5IKDU4q2fM4vDM0+j9bg7RELXKA=",
+			"path": "github.com/apparentlymart/go-openvpn-mgmt/demux",
+			"revision": "9a305aecd7f2941d9686aef38d0f649dc2189483",
+			"revisionTime": "2016-10-09T01:09:51Z"
+		},
+		{
+			"checksumSHA1": "UZ2938H6mCnkpHLY7v5FIELaETw=",
+			"path": "github.com/apparentlymart/go-openvpn-mgmt/openvpn",
+			"revision": "9a305aecd7f2941d9686aef38d0f649dc2189483",
+			"revisionTime": "2016-10-09T01:09:51Z"
+		},
+		{
 			"checksumSHA1": "d6798KSc0jDg2MHNxKdgyNfMK7A=",
 			"path": "github.com/armon/go-metrics",
 			"revision": "3df31a1ada83e310c2e24b267c8e8b68836547b4",
