@@ -15,6 +15,7 @@ type Config struct {
 	RegionPrefixLen      int      `hcl:"region_prefix_length" envconfig:"OPENVPN_PEER_REGION_PREFIX_LEN"`
 	DCPrefixLen          int      `hcl:"datacenter_prefix_length" envconfig:"OPENVPN_PEER_DC_PREFIX_LEN"`
 	PublicIPAddress      string   `hcl:"public_ip_address" envconfig:"OPENVPN_PEER_PUBLIC_IP"`
+	VPNKeyFilename       string   `hcl:"vpn_key_file" envconfig:"OPENVPN_PEER_KEY_FILE"`
 	VPNEndpointStartPort int      `hcl:"vpn_endpoint_start_port" envconfig:"OPENVPN_PEER_START_PORT"`
 	GossipPort           int      `hcl:"gossip_port" envconfig:"OPENVPN_PEER_GOSSIP_PORT"`
 	GossipEncryptionKey  string   `hcl:"gossip_encryption_key" envconfig:"OPENVPN_PEER_GOSSIP_KEY"`

@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/apparentlymart/go-openvpn-mgmt/openvpn"
@@ -147,6 +148,13 @@ func StartOpenVPN(config *VPNConfig) (*OpenVPN, error) {
 		"--",
 		config.OpenVPNPath,
 
+		// ***** REMOVE THIS BEFORE RELEASING FOR PRODUCTION USE *****
+		// Allow connections from any address, which is useful in dev
+		// when running two nodes on the same machine where the IP addresses
+		// tend to get a bit tangled up. But this weakens our security
+		// for production use on the public internet.
+		"--float",
+
 		// Have OpenVPN connect to our management socket, and don't try
 		// to connect until we're actively pumping the management event
 		// stream.
@@ -183,6 +191,8 @@ func StartOpenVPN(config *VPNConfig) (*OpenVPN, error) {
 		cmdLine = cmdLine[2:]
 	}
 
+	log.Printf("Starting OpenVPN %s", strings.Join(cmdLine, " "))
+
 	cmd := &exec.Cmd{
 		Path: cmdLine[0],
 		Args: cmdLine,
@@ -191,9 +201,18 @@ func StartOpenVPN(config *VPNConfig) (*OpenVPN, error) {
 		Env: []string{},
 
 		Dir: mgmtSocketDir,
+
+		// TEMP: For the moment, while we're debugging, we're going
+		// to just let OpenVPN blather into our stderr. Later on
+		// we should quiet it down.
+		Stdout: os.Stdout,
+		Stderr: os.Stderr,
 	}
 
-	cmd.Start()
+	err = cmd.Start()
+	if err != nil {
+		return nil, fmt.Errorf("OpenVPN failed to start: %s", err)
+	}
 
 	type connMsg struct {
 		conn *openvpn.IncomingConn

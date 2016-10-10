@@ -9,7 +9,7 @@ import (
 )
 
 type Endpoint struct {
-	config *Config
+	addr   Address
 	member *serf.Member
 	coord  *coordinate.Coordinate
 }
@@ -17,8 +17,10 @@ type Endpoint struct {
 const MaxDistance = int64((1 << 63) - 1)
 
 func newEndpoint(gossip *Gossip, member *serf.Member) *Endpoint {
+	addr := gossip.config.Addressing.Address(member.Tags["int_ip"])
+
 	ret := &Endpoint{
-		config: gossip.config,
+		addr:   addr,
 		member: member,
 	}
 
@@ -42,7 +44,7 @@ func (e *Endpoint) GossipPort() uint16 {
 }
 
 func (e *Endpoint) InternalAddr() net.IP {
-	return net.ParseIP(e.member.Tags["int_ip"])
+	return e.addr.IP
 }
 
 func (e *Endpoint) Status() serf.MemberStatus {
@@ -57,76 +59,20 @@ func (e *Endpoint) ExpectedAlive() bool {
 	return e.member.Status != serf.StatusLeft && e.member.Status != serf.StatusLeaving
 }
 
-func (e *Endpoint) RegionId() string {
-	prefixLen := e.config.RegionPrefixLen
-	ip := e.InternalAddr()
-	if ip == nil {
-		// If we don't have an IP address then we don't have a region either
-		return ""
-	}
+func (e *Endpoint) Address() Address {
+	return e.addr
+}
 
-	mask := net.CIDRMask(prefixLen, 32)
-	return ip.Mask(mask).String()
+func (e *Endpoint) RegionId() string {
+	return e.addr.RegionId()
 }
 
 func (e *Endpoint) DatacenterId() string {
-	prefixLen := e.config.DCPrefixLen
-	ip := e.InternalAddr()
-	if ip == nil {
-		// If we don't have an IP address then we don't have a region either
-		return ""
-	}
-
-	mask := net.CIDRMask(prefixLen, 32)
-	return ip.Mask(mask).String()
+	return e.addr.DatacenterId()
 }
 
-// EndpointId returns the unique identifier for this endpoint, which
-// is made from the bits in the endpoint's private IP address
-// between the common prefix and the datacenter prefix. In other words,
-// it's the datacenter prefix address with the common prefix "trimmed off",
-// giving a 10-bit number.
-//
-// EndpointId is unique as long as the user respects the constraint that
-// there should be only one endpoint per datacenter. If not, behavior is
-// undefined and tunnel instability is the likely result.
-func (e *Endpoint) EndpointId() EndpointId {
-	commonPrefixLen := e.config.CommonPrefixLen
-	dcPrefixLen := e.config.DCPrefixLen
-	ip := e.InternalAddr()
-	if ip == nil {
-		// If we don't have an IP address then we don't have an endpoint id
-		// either, so we'll return an invalid placeholder.
-		return 0xffff
-	}
-
-	// These cases should've been caught during config validation, so
-	// we won't go out of our way to report it but we will check
-	// so that we won't crash if these assumptions are violated.
-	if commonPrefixLen >= 24 || commonPrefixLen >= dcPrefixLen || (dcPrefixLen-commonPrefixLen) > 10 {
-		return 0xffff
-	}
-
-	// First we'll compute the datacenter id as an IP address, and
-	// extract the raw bytes from it.
-	mask := net.CIDRMask(dcPrefixLen, 32)
-	dcBytes := []byte(ip.Mask(mask))
-
-	// integer division by 8 gives us the index of the byte that
-	// contains the first bit of our id. Then modulo 8 tells us
-	// how far we need to shift to move the first bit into the
-	// MSB of the byte.
-	firstByteIdx := commonPrefixLen / 8
-	firstByteShiftOffset := uint(commonPrefixLen % 8)
-	firstByteBits := 8 - firstByteShiftOffset
-	secondByteBits := 10 - firstByteBits
-
-	id := (uint16(dcBytes[firstByteIdx])<<(firstByteShiftOffset+2) |
-		uint16(dcBytes[firstByteIdx+1])>>uint(8-secondByteBits))
-
-	// Now we extract and shift the bits around so that they
-	// occupy the low 10 bits of our return value.
-	return EndpointId(id & 0x3ff)
+func (e *Endpoint) Id() EndpointId {
+	return e.addr.EndpointId()
 }
 
 // DistanceTo returns the "round-trip distance" to/from the other
@@ -157,7 +103,6 @@ func (id EndpointId) String() string {
 		return "???"
 	} else {
 		return fmt.Sprintf("%03x", uint16(id))
-		//return fmt.Sprintf("%010b", uint16(id))
 	}
 }
 

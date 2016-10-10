@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"net"
 	"time"
 
 	"github.com/hashicorp/memberlist"
@@ -11,12 +10,21 @@ import (
 )
 
 type Gossip struct {
-	config      *Config
+	config      *GossipConfig
 	serf        *serf.Serf
 	latestState *ClusterState
 }
 
-func NewGossip(config *Config) *Gossip {
+type GossipConfig struct {
+	NodeName        string
+	ListenIPAddr    string
+	AdvertiseIPAddr string
+	Port            int
+	DataDir         string
+	Addressing      *Addressing
+}
+
+func NewGossip(config *GossipConfig) *Gossip {
 	return &Gossip{
 		config: config,
 	}
@@ -43,50 +51,13 @@ func (g *Gossip) Start(changeCh chan *ClusterState) error {
 	serfConfig := serf.DefaultConfig()
 	serfConfig.MemberlistConfig = memberlist.DefaultWANConfig()
 
-	iface, err := net.InterfaceByName(config.LocalInterface)
-	if err != nil {
-		return fmt.Errorf("failed to read %s interface config: %s", config)
-	}
-
-	localAddrs, err := iface.Addrs()
-	if err != nil {
-		return fmt.Errorf("failed to enumerate addresses for %s: %s", config.LocalInterface, err)
-	}
-	if len(localAddrs) == 0 {
-		return fmt.Errorf("%s has no addresses: %s", config.LocalInterface, err)
-	}
-
-	ipv4AddrCount := 0
-	var localAddr string
-	for _, addr := range localAddrs {
-		if ipNet, ok := addr.(*net.IPNet); ok {
-			ipv4Addr := ipNet.IP.To4()
-			if ipv4Addr == nil {
-				continue
-			}
-			if localAddr == "" {
-				localAddr = ipv4Addr.String()
-			}
-			ipv4AddrCount = ipv4AddrCount + 1
-		}
-	}
-
-	if ipv4AddrCount == 0 {
-		return fmt.Errorf("%s has no IPv4 addresses: %s", config.LocalInterface, err)
-	}
-
-	log.Printf("Local IP address is %#s", localAddr)
-	if ipv4AddrCount > 1 {
-		log.Printf("%s has multiple IPv4 addresses, so I just picked one arbitrarily", config.LocalInterface)
-	}
-
-	serfConfig.MemberlistConfig.BindAddr = localAddr
-	serfConfig.MemberlistConfig.BindPort = config.GossipPort
-	serfConfig.MemberlistConfig.AdvertiseAddr = config.PublicIPAddress
-	serfConfig.MemberlistConfig.AdvertisePort = config.GossipPort
+	serfConfig.MemberlistConfig.BindAddr = config.ListenIPAddr
+	serfConfig.MemberlistConfig.BindPort = config.Port
+	serfConfig.MemberlistConfig.AdvertiseAddr = config.AdvertiseIPAddr
+	serfConfig.MemberlistConfig.AdvertisePort = config.Port
 	serfConfig.NodeName = config.NodeName
 	serfConfig.Tags = map[string]string{
-		"int_ip": localAddr,
+		"int_ip": config.ListenIPAddr,
 	}
 	serfConfig.SnapshotPath = config.DataDir
 	serfConfig.CoalescePeriod = 3 * time.Second
