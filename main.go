@@ -186,3 +186,48 @@ func PrintState(state *ClusterState) {
 	w.Flush()
 	os.Stdout.Write([]byte{'\n'})
 }
+
+func othermain() {
+	remoteAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:1195")
+	if err != nil {
+		panic(err)
+	}
+	localAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:1194")
+	if err != nil {
+		panic(err)
+	}
+	tunnelRemoteAddr := net.ParseIP("10.8.0.2")
+	tunnelLocalAddr := net.ParseIP("10.8.0.1")
+
+	openVPN, err := StartOpenVPN(&VPNConfig{
+		OpenVPNPath:  "/usr/sbin/openvpn",
+		LauncherPath: "/usr/bin/sudo",
+
+		RemoteAddr: remoteAddr,
+		LocalAddr:  localAddr,
+
+		SecretFilename: "/home/mart/Devel/defgrid/openvpn-peer/scratch.key",
+
+		TunnelRemoteAddr: tunnelRemoteAddr,
+		TunnelLocalAddr:  tunnelLocalAddr,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	// Shut down OpenVPN after a little while, because we lack
+	// any other way to explicitly shut it down right now.
+	/*go func () {
+		time.Sleep(30 * time.Second)
+		err := openVPN.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()*/
+
+	var state VPNState
+	for state != VPNExited {
+		state = openVPN.AwaitStateChange()
+		log.Printf("VPN state is now %d", state)
+	}
+}
