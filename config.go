@@ -11,6 +11,7 @@ import (
 type Config struct {
 	NodeName             string   `hcl:"node_name" envconfig:"OPENVPN_PEER_NODE_NAME"`
 	LocalInterface       string   `hcl:"local_interface" envconfig:"OPENVPN_PEER_INTERFACE"`
+	CommonPrefixLen      int      `hcl:"common_prefix_length" envconfig:"OPENVPN_PEER_COMMON_PREFIX_LEN"`
 	RegionPrefixLen      int      `hcl:"region_prefix_length" envconfig:"OPENVPN_PEER_REGION_PREFIX_LEN"`
 	DCPrefixLen          int      `hcl:"datacenter_prefix_length" envconfig:"OPENVPN_PEER_DC_PREFIX_LEN"`
 	PublicIPAddress      string   `hcl:"public_ip_address" envconfig:"OPENVPN_PEER_PUBLIC_IP"`
@@ -63,6 +64,9 @@ func (c *Config) Override(other *Config) {
 	}
 	if other.LocalInterface != "" {
 		c.LocalInterface = other.LocalInterface
+	}
+	if other.CommonPrefixLen != 0 {
+		c.CommonPrefixLen = other.CommonPrefixLen
 	}
 	if other.RegionPrefixLen != 0 {
 		c.RegionPrefixLen = other.RegionPrefixLen

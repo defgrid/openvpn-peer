@@ -59,12 +59,13 @@ func main() {
 
 func PrintState(state *ClusterState) {
 	w := tabwriter.NewWriter(os.Stdout, 4, 4, 2, ' ', 0)
-	w.Write([]byte("\nname\tglobal address\tlocal address\tregion\tdatacenter\tdistance\tstatus\t\n"))
+	w.Write([]byte("\nname\teid\tglobal address\tlocal address\tregion\tdatacenter\tdistance\tstatus\t\n"))
 
 	printEndpoint := func(e *Endpoint) {
 		w.Write([]byte(fmt.Sprintf(
-			"%s\t%s:%d\t%s\t%s\t%s\t%d\t%s\t\n",
+			"%s\t%s\t%s:%d\t%s\t%s\t%s\t%d\t%s\t\n",
 			e.NodeName(),
+			e.EndpointId(),
 			e.GossipAddr(),
 			e.GossipPort(),
 			e.InternalAddr(),
