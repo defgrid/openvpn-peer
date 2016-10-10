@@ -49,6 +49,14 @@ func (e *Endpoint) Status() serf.MemberStatus {
 	return e.member.Status
 }
 
+func (e *Endpoint) Alive() bool {
+	return e.member.Status == serf.StatusAlive
+}
+
+func (e *Endpoint) ExpectedAlive() bool {
+	return e.member.Status != serf.StatusLeft && e.member.Status != serf.StatusLeaving
+}
+
 func (e *Endpoint) RegionId() string {
 	prefixLen := e.config.RegionPrefixLen
 	ip := e.InternalAddr()
@@ -166,6 +174,10 @@ func (s EndpointSet) Add(id EndpointId) {
 		return
 	}
 	s[id] = struct{}{}
+}
+
+func (s EndpointSet) Remove(id EndpointId) {
+	delete(s, id)
 }
 
 func (s EndpointSet) Has(id EndpointId) bool {
