@@ -152,3 +152,48 @@ func (id EndpointId) String() string {
 		//return fmt.Sprintf("%010b", uint16(id))
 	}
 }
+
+// EndpointSet represents a set of endpoints -- or rather, of endpoint ids.
+//
+// This is just a utility used to easily recognize the difference between
+// the current state and the desired state, as the first step towards
+// implementing the desired state.
+type EndpointSet map[EndpointId]struct{}
+
+func (s EndpointSet) Add(id EndpointId) {
+	if id == InvalidEndpointId {
+		// Can't add an invalid endpoint id to a set
+		return
+	}
+	s[id] = struct{}{}
+}
+
+func (s EndpointSet) Has(id EndpointId) bool {
+	_, ok := s[id]
+	return ok
+}
+
+func (s EndpointSet) Union(other EndpointSet) EndpointSet {
+	ret := make(EndpointSet, len(s)+len(other))
+
+	for k, v := range s {
+		ret[k] = v
+	}
+	for k, v := range other {
+		ret[k] = v
+	}
+
+	return ret
+}
+
+func (s EndpointSet) Subtract(other EndpointSet) EndpointSet {
+	ret := make(EndpointSet, len(s))
+
+	for k, _ := range s {
+		if !other.Has(k) {
+			ret.Add(k)
+		}
+	}
+
+	return ret
+}
