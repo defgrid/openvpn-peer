@@ -217,6 +217,24 @@ func (m *Manager) Run() {
 			log.Println("Periodic refresh")
 		}
 
+		// We only really care about the *latest* state, so we'll suck
+		// a few more state updates out of the pipeline if we can, such
+		// that if a bunch of things change in quick succession we can
+		// act on them all at once.
+		Coalescing: for i := 0; i < 16; i++ {
+			// Keep doing non-blocking reads from our channels until
+			// there's nothing left to read or until we've processed
+			// (arbitrarily) 16 events.
+			select {
+			case clusterState = <-clusterStateCh:
+			case tunnelState = <-tunnelStateCh:
+
+			default:
+				// nothing left to read, so we're done for now
+				break Coalescing
+			}
+		}
+
 	}
 }
 
