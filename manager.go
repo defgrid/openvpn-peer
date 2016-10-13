@@ -134,6 +134,9 @@ func (m *Manager) Run() {
 		//       - If OpenVPN isn't running and there are no other endpoints
 		//         in the local region then the next-hop is blackhole.
 
+		PrintClusterState(clusterState)
+		PrintTunnelState(tunnelState)
+
 		endpoints := make(map[EndpointId]*Endpoint)
 		remoteEndpoints := make(EndpointSet, len(clusterState.RemoteEndpoints))
 		liveRemoteEndpoints := make(EndpointSet, len(remoteEndpoints))

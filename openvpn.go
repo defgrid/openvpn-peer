@@ -62,6 +62,7 @@ const (
 	// change event before the event channel is closed.
 	VPNExited
 )
+//go:generate stringer -type=VPNState
 
 type VPNConfig struct {
 
@@ -201,12 +202,6 @@ func StartOpenVPN(config *VPNConfig) (*OpenVPN, error) {
 		Env: []string{},
 
 		Dir: mgmtSocketDir,
-
-		// TEMP: For the moment, while we're debugging, we're going
-		// to just let OpenVPN blather into our stderr. Later on
-		// we should quiet it down.
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
 	}
 
 	err = cmd.Start()

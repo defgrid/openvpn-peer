@@ -112,7 +112,7 @@ func (m *TunnelMgr) StartTunnel(endpoint *Endpoint) error {
 		var state VPNState
 		for state != VPNExited {
 			state = vpn.AwaitStateChange()
-			log.Printf("VPN to endpoint %s changed state to %d", endpointId, state)
+			log.Printf("VPN to endpoint %s changed state to %s", endpointId, state)
 			m.lock.Lock()
 			if state == VPNExited {
 				delete(m.tunnelVPNs, endpointId)

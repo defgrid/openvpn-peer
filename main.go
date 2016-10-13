@@ -6,7 +6,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"text/tabwriter"
 )
 
 func main() {
@@ -39,37 +38,6 @@ func main() {
 
 	mgr.Run()
 
-}
-
-func PrintState(state *ClusterState) {
-	w := tabwriter.NewWriter(os.Stdout, 4, 4, 2, ' ', 0)
-	w.Write([]byte("\nname\teid\tglobal address\tlocal address\tregion\tdatacenter\tdistance\tstatus\t\n"))
-
-	printEndpoint := func(e *Endpoint) {
-		w.Write([]byte(fmt.Sprintf(
-			"%s\t%s\t%s:%d\t%s\t%s\t%s\t%d\t%s\t\n",
-			e.NodeName(),
-			e.Id(),
-			e.GossipAddr(),
-			e.GossipPort(),
-			e.InternalAddr(),
-			e.RegionId(),
-			e.DatacenterId(),
-			e.DistanceTo(state.ThisEndpoint),
-			e.Status(),
-		)))
-	}
-
-	printEndpoint(state.ThisEndpoint)
-	for _, endpoint := range state.LocalEndpoints {
-		printEndpoint(endpoint)
-	}
-	for _, endpoint := range state.RemoteEndpoints {
-		printEndpoint(endpoint)
-	}
-
-	w.Flush()
-	os.Stdout.Write([]byte{'\n'})
 }
 
 func othermain() {
